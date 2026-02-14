@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; height: 100vh; overflow: hidden;
+            background: radial-gradient(circle at 20% 80%, #0f3460 0%, #0a0a23 50%, #000 100%);
+            font-family: 'Arial', sans-serif;
+            position: relative;
+        }
+        .stars-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+                radial-gradient(1.5px 1.5px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(2px 2px at 180px 20px, #fff, transparent);
+            background-repeat: repeat;
+            background-size: 250px 120px;
+            animation: twinkle 4s ease-in-out infinite alternate;
+            z-index: 1;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* FIRST PAGE */
+        .first-page { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        h1 {
+            font-size: 3em; color: #ffd700; text-align: center; margin-bottom: 2em;
+            text-shadow: 0 0 30px rgba(255,215,0,0.8); z-index: 25; position: relative;
+        }
+        h1.hidden { opacity: 0; transition: opacity 0.5s ease; }
+        .buttons {
+            display: flex; gap: 2em; position: relative; z-index: 25;
+        }
+        button {
+            padding: 1em 2em; font-size: 1.5em; border: none;
+            border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
+            opacity: 1 !important; position: relative;
+        }
+        #yesBtn {
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            color: white; box-shadow: 0 10px 20px rgba(255,107,157,0.4);
+        }
+        #yesBtn:hover { transform: scale(1.1); box-shadow: 0 15px 30px rgba(255,107,157,0.6); }
+        #noBtn {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #333; box-shadow: 0 10px 20px rgba(168,237,234,0.4);
+            position: relative; z-index: 30;
+        }
+        #noBtn.moving {
+            position: fixed !important; transition: left 0.2s ease, top 0.2s ease !important;
+            z-index: 35; opacity: 1 !important;
+        }
+
+        /* COUPLE GAME */
+        .couple-game {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 40;
+        }
+        .game-title {
+            position: absolute; top: 15%; left: 50%; transform: translateX(-50%);
+            color: white; font-size: 2.5em; text-align: center;
+            text-shadow: 0 0 20px rgba(255,255,255,0.8); font-weight: bold;
+            z-index: 45;
+        }
+        .couple-selection {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; gap: 4em; z-index: 45;
+        }
+        .couple-option {
+            background: linear-gradient(135deg, rgba(255,107,157,0.9), rgba(255,255,255,0.8));
+            border: 3px solid rgba(255,215,0,0.6); border-radius: 20px;
+            padding: 2em 3em; text-align: center; cursor: pointer;
+            transition: all 0.4s ease; backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); font-size: 1.4em;
+            font-weight: bold; color: #333; min-width: 220px;
+        }
+        .couple-option:hover:not(.selected):not(.moving) {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 25px 50px rgba(255,107,157,0.4);
+            border-color: rgba(255,215,0,1);
+        }
+        .couple-option.selected {
+            background: linear-gradient(135deg, #ffd700, #ffed4e) !important;
+            color: #333; border-color: #ff6b9d !important;
+            animation: pulse 1.5s infinite alternate; transform: scale(1.05);
+        }
+        .nee-jey-option {
+            background: linear-gradient(135deg, rgba(255,107,157,0.95), rgba(255,192,203,0.9)) !important;
+            border: 4px solid #ffd700 !important;
+            box-shadow: 0 25px 60px rgba(255,215,0,0.6) !important;
+        }
+        .couple-option.moving {
+            position: fixed !important; transition: all 0.3s ease !important;
+            z-index: 50; opacity: 1 !important;
+            cursor: pointer !important;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 20px 40px rgba(255,215,0,0.6); }
+            100% { box-shadow: 0 25px 50px rgba(255,215,0,0.9); }
+        }
+
+        /* FIREWORKS */
+        #fireworksCanvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: none; z-index: 50;
+        }
+        .final-message {
+            display: none;
+            position: fixed; top: 30%; left: 50%; transform: translateX(-50%);
+            color: white; font-size: 3em; font-weight: bold; text-align: center;
+            text-shadow: 0 0 40px rgba(255,255,255,0.9); z-index: 60;
+            max-width: 90%; animation: celebrateFade 2s ease-out forwards;
+        }
+        @keyframes celebrateFade {
+            0% { opacity: 0; transform: translateX(-50%) translateY(50px) scale(0.8); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.2em; }
+            .buttons { gap: 1.5em; }
+            button { font-size: 1.2em; padding: 0.9em 1.8em; }
+            .game-title { font-size: 2em; top: 12%; }
+            .couple-option { font-size: 1.2em; padding: 1.5em 2em; min-width: 180px; }
+            .final-message { font-size: 2em; top: 25%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- STARRY BACKGROUND -->
+    <div class="stars-bg"></div>
+
+    <!-- FIRST PAGE -->
+    <div class="first-page" id="firstPage">
+        <h1 id="title">Will you be my Valentine? 💕</h1>
+        <div class="buttons">
+            <button id="yesBtn">Yes 😍</button>
+            <button id="noBtn">No 🙄</button>
+        </div>
+    </div>
+
+    <!-- COUPLE GAME -->
+    <div class="couple-game" id="coupleGame">
+        <div class="game-title" id="gameTitle">Choose 1</div>
+        <div class="couple-selection" id="coupleSelection"></div>
+    </div>
+
+    <!-- FIREWORKS -->
+    <canvas id="fireworksCanvas"></canvas>
+    <div class="final-message" id="finalMessage">Happy Valentine's Day, Jey! 💖✨</div>
+
+    <script>
+        // FIRST PAGE
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const title = document.getElementById('title');
+        const firstPage = document.getElementById('firstPage');
+        let gameActive = true;
+
+        function getSafeRandomPosition(element) {
+            const rect = element.getBoundingClientRect();
+            const padding = 60;
+            const maxX = window.innerWidth - rect.width - padding;
+            const maxY = window.innerHeight - rect.height - padding;
+            return {
+                x: padding + (Math.random() * (maxX - padding)),
+                y: padding + (Math.random() * (maxY - padding))
+            };
+        }
+
+        function moveNoButton() {
+            if (!gameActive) return;
+            noBtn.classList.add('moving');
+            const pos = getSafeRandomPosition(noBtn);
+            noBtn.style.left = pos.x + 'px';
+            noBtn.style.top = pos.y + 'px';
+        }
+
+        noBtn.addEventListener('mouseenter', moveNoButton);
+        noBtn.addEventListener('touchstart', moveNoButton);
+        noBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            moveNoButton();
+            return false;
+        });
+
+        yesBtn.addEventListener('click', () => {
+            gameActive = false;
+            title.classList.add('hidden');
+            firstPage.style.opacity = '0';
+            setTimeout(() => {
+                firstPage.style.display = 'none';
+                document.getElementById('coupleGame').style.display = 'block';
+                startCoupleGame();
+            }, 500);
+        });
+
+        // COUPLE SELECTION
+        const allCouples = [
+            'Ross & Rachel', 'Jim & Pam', 'Luke & Lorelai', 'Corey & Topanga',
+            'Marshall & Lily', 'Sheldon & Amy', 'Mindy & Danny', 'Annie & Liam'
+        ];
+        let currentOptions = [];
+        let selectedChain = [];
+        let isFinalRound = false;
+        let finalNoOption = null;
+
+        function startCoupleGame() {
+            currentOptions = [allCouples[0], allCouples[1]];
+            showCoupleOptions();
+        }
+
+        function showCoupleOptions() {
+            const selection = document.getElementById('coupleSelection');
+            selection.innerHTML = '';
+            
+            if (selectedChain.length >= 6 && !isFinalRound) {
+                // FINAL ROUND - Last couple (NO) vs Nee & Jey (YES)
+                isFinalRound = true;
+                const lastCouple = selectedChain[selectedChain.length - 1];
+                document.getElementById('gameTitle').textContent = `${lastCouple} or`;
+                
+                // Option 1: Last couple (MOVING "NO" OPTION)
+                const lastOption = document.createElement('div');
+                lastOption.className = 'couple-option selected';
+                lastOption.id = 'finalNoOption';
+                lastOption.textContent = lastCouple;
+                lastOption.style.position = 'relative';
+                selection.appendChild(lastOption);
+                
+                // Option 2: Nee & Jey (STAYS "YES" OPTION)
+                const neeJeyOption = document.createElement('div');
+                neeJeyOption.className = 'couple-option nee-jey-option';
+                neeJeyOption.textContent = 'Nee & Jey';
+                neeJeyOption.onclick = () => selectFinalCouple('Nee & Jey');
+                selection.appendChild(neeJeyOption);
+                
+                // Start dodging for final NO option
+                finalNoOption = document.getElementById('finalNoOption');
+                setupFinalNoButton(finalNoOption);
+                
+            } else if (isFinalRound && selectedChain[selectedChain.length - 1] !== 'Nee & Jey') {
+                finishGame();
+            } else {
+                // REGULAR GAME
+                document.getElementById('gameTitle').textContent = 'Choose 1';
+                currentOptions.forEach((couple, index) => {
+                    const option = document.createElement('div');
+                    option.className = 'couple-option';
+                    option.textContent = couple;
+                    option.onclick = () => selectCouple(index);
+                    selection.appendChild(option);
+                });
+            }
+        }
+
+        function setupFinalNoButton(noElement) {
+            let finalGameActive = true;
+            
+            function moveFinalNoButton() {
+                if (!finalGameActive) return;
+                noElement.classList.add('moving');
+                const pos = getSafeRandomPosition(noElement);
+                noElement.style.left = pos.x + 'px';
+                noElement.style.top = pos.y + 'px';
+            }
+            
+            noElement.addEventListener('mouseenter', moveFinalNoButton);
+            noElement.addEventListener('touchstart', moveFinalNoButton);
+            noElement.addEventListener('click', (e) => {
+                e.preventDefault();
+                moveFinalNoButton();
+                return false;
+            });
+        }
+
+        function selectCouple(selectedIndex) {
+            const keptCouple = currentOptions[selectedIndex];
+            selectedChain.push(keptCouple);
+            
+            const otherIndex = 1 - selectedIndex;
+            const usedCouples = selectedChain.slice(0, -1);
+            const availableCouples = allCouples.filter(c => !usedCouples.includes(c));
+            currentOptions[otherIndex] = availableCouples[Math.floor(Math.random() * availableCouples.length)];
+            
+            const options = document.querySelectorAll('.couple-option');
+            options[selectedIndex].classList.add('selected');
+            options[otherIndex].style.transform = 'scale(0.5)';
+            options[otherIndex].style.opacity = '0';
+            
+            setTimeout(() => {
+                options[otherIndex].remove();
+                showCoupleOptions();
+            }, 500);
+        }
+
+        function selectFinalCouple(winner) {
+            selectedChain.push(winner);
+            finishGame();
+        }
+
+        function finishGame() {
+            if (finalNoOption) finalNoOption.remove();
+            document.getElementById('coupleGame').style.display = 'none';
+            document.getElementById('fireworksCanvas').style.display = 'block';
+            document.querySelector('.final-message').style.display = 'block';
+            launchCelebrationFireworks();
+        }
+
+        // FIREWORKS ENGINE
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        let fireworks = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor(x, y, vx, vy, color, life = 80) {
+                this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+                this.color = color; this.life = life; this.maxLife = life;
+                this.size = Math.random() * 5 + 2;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy; this.vy += 0.12;
+                this.life--; this.size *= 0.98;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life / this.maxLife;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 35, 0.12)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = fireworks.length - 1; i >= 0; i--) {
+                const fw = fireworks[i];
+                fw.particles.forEach(p => { p.update(); p.draw(); });
+                fw.life--;
+                fw.particles = fw.particles.filter(p => p.life > 0);
+                if (fw.life <= 0 && fw.particles.length === 0) fireworks.splice(i, 1);
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        function launchCelebrationFireworks() {
+            const colors = ['#ff6b9d', '#ffd700', '#ff9a9e', '#a8edea', '#ffed4e', '#fff'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    createFireworkExplosion(
+                        Math.random() * canvas.width,
+                        canvas.height * 0.25,
+                        colors[Math.floor(Math.random() * colors.length)]
+                    );
+                }, i * 100);
+            }
+        }
+
+        function createFireworkExplosion(x, y, color) {
+            const fw = { x: x, y: y, life: 100, particles: [] };
+            for (let i = 0; i < 150; i++) {
+                const angle = (i / 150) * Math.PI * 2;
+                const speed = Math.random() * 10 + 5;
+                fw.particles.push(new Particle(x, y, 
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed * 0.6,
+                    color
+                ));
+            }
+            fireworks.push(fw);
+        }
+    </script>
+</body>
+</html>
